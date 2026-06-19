@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard for {{ username }} </title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            /* background: linear-gradient(to bottom, #000012,#000012, #337aff, #323232);  */
+            background-color: #F8FBFE;
+            align-items: center; 
+            justify-content: center;
+            color: #000; 
+        }
+    </style>
+    <script>
+        function showSpinner() {
+            document.getElementById('loading-spinner').style.display = 'block';
+        }
+        function showSpinner2() {
+            document.getElementById('loading-spinner-2').style.display = 'block';
+        }
+    </script>
+</head>
+<body>
+    <div style="flex-direction: column; width: 100%;">
+        <div class="dashboard-header">
+            <h1 class="subhead" style="font-size: 40px; margin: 0px; display: inline-block; font-weight: 100;">{{ username.capitalize() }} </h1>
+            <h1 style="color: #fbfbfb; font-size: 40px; margin: 0px; display: inline-block; font-weight: 100;">&nbspAdmin Dashboard</h1>
+            <form action="{{ url_for('logout') }}" method="post" style="float: right;">
+                <button type="submit" class="logout-button">log out</button>
+            </form>
+        </div>
+        <div style="text-align: left; margin: 40px">
+            
+            <p style="font-size: 28px; margin-bottom: 10px; font-weight: 100;">{{ date }}</p>
+            <h2>Employees</h2>
+
+                <form action="{{ url_for('add_employee') }}" method="post" enctype="multipart/form-data" class="box-add-employee" onsubmit="showSpinner()">
+                    <p style="margin: 0px 0px 10px 0px; color: #000; font-weight: 100;">Add Employee by PDF Resume</p>
+                    <input type="file" name="resume" accept=".pdf">
+                    <button class="button-add" type="submit">+ Add</button>
+                    <div id="loading-spinner" style="display: none; margin: 30px 30px 30px 60px">
+                        <div class="ring" style="width: 100px; height: 100px; text-align: center;">
+                            <div class='ring1' style="border:1px solid #e91c97; border-radius: 25% ;box-shadow: 0 0 5px 0.05px #e91c97 "></div>
+                            <div class='ring2' style="border:1px solid #595959;  border-radius: 25% ;box-shadow: 0 0 5px 0.05px #595959"></div>
+                            <div class='ring3' style="border:1px solid #e91c97;  border-radius: 25% ;box-shadow: 0 0 5px 0.05px #e91c97"></div>
+                            <div class='ring4' style="border:1px solid #595959;  border-radius: 25% ; box-shadow: 0 0 5px 0.05px #595959"></div>
+                            <div class='ring5' style="border:1px solid #e91c97;  border-radius: 25% ; box-shadow: 0 0 5px 0.05px #e91c97"></div>
+                            <p style="font-size: 20px; line-height: 1.1; color:#000; margin-bottom: 5px">AI is analyzing resume...</p>
+                            <p style="font-size: 12px; line-height: 1.1; color:#595959; margin-bottom: 5px">This may take up to 30 sec.</p>
+
+                        </div>
+                    </div>
+                </form>
+            
+                <div id="popup-container" style="display:none;"></div>
+
+                <div class="dashboard-box-2">
+                    {% for employee in employees %}
+                    <div class="employee-card" onclick="showDetails('details{{ loop.index }}')">  
+                        <h3 style="font-size: 24px; margin: 0px">{{ employee.name }}</h3>
+                        <p style="font-weight: 100; color: #1D1D1F">{{ employees_dict[employee] }}</p>
+                        <div style="display: flex; flex-direction: row;">
+                            <button class="button-add-employee" type="button">Read More</button>
+                            <!-- <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
+                                <button class="button-delete-employee" type="submit">Delete</button>
+                            </form> -->
+                            <form action="{{ url_for('delete_employee', employee_id=employee.id) }}" method="post">
+                                <button class="button-delete-employee" type="button" 
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
+                                  Delete
+                                </button>
+                             </form>
+
+                        </div>
+                        
+                        <div id="details{{ loop.index }}" style="display: none;">
+                            <h3 style="color: #000; border-bottom: 2px solid #ddd; padding-bottom: 10px;">{{ employee.name }}</h3>
+                            <div style="padding: 10px 0;">
+                                <h4 style="margin :0px; color: #000; ">Summary</h4>
+                                <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ employee.summary }}</p>
+                                <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                            </div>
+                            <div style="padding: 10px 0;">
+                                <h4 style="margin :0px; color: #000;">Skills</h4>
+                                <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ employee.skills }}</p>
+                                <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                            </div>
+                            <div style="padding: 10px 0;">
+                                <h4 style="margin :0px; color: #000;">Hobbies</h4>
+                                <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ employee.hobbies }}</p>
+                                <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                            </div>
+                            <div style="padding: 10px 0;">
+                                <h4 style="margin :0px; color: #000;">Suitable Jobs</h4>
+                                <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ employee.jobs }}</p>
+                            </div>
+                        </div>
+                    </div>  
+                    {% endfor %}
+                </div>
+            
+        
+            <h2>Projects</h2>
+            <div class="box-add-project" style="margin-bottom: 20px;">
+                <form action="{{ url_for('add_project') }}" method="post" enctype="multipart/form-data" onsubmit="showSpinner2()">
+                    <p style="color: #000; font-weight: 100px; margin-bottom: 10px; margin-top: 0;">Add Project Title and Description</p>
+                    <div style="align-items: left; padding: 10px;">
+                        <div style="display: flex; flex-direction: row;">
+                        <textarea type="text" name="title" placeholder="Project Title" required style="flex-grow: 1; margin-right: 10px; padding: 10px; height: 40px"></textarea>
+                        <textarea name="description" placeholder="Project Description" required style="flex-grow: 1; margin-right: 10px; padding: 10px;height: 40px"></textarea>
+                        <button class="button-add" type="submit">+ Add</button>
+                    </div>
+                        <div id="loading-spinner-2" style="display: none; margin: 30px 30px 30px 60px">
+                            <div class="ring" style="width: 100px; height: 100px; text-align: center;">
+                                <div class='ring1' style="border:1px solid #e91c97; border-radius: 25% ;box-shadow: 0 0 5px 0.05px #e91c97 "></div>
+                                <div class='ring2' style="border:1px solid #595959;  border-radius: 25% ;box-shadow: 0 0 5px 0.05px #595959"></div>
+                                <div class='ring3' style="border:1px solid #e91c97;  border-radius: 25% ;box-shadow: 0 0 5px 0.05px #e91c97"></div>
+                                <div class='ring4' style="border:1px solid #595959;  border-radius: 25% ; box-shadow: 0 0 5px 0.05px #595959"></div>
+                                <div class='ring5' style="border:1px solid #e91c97;  border-radius: 25% ; box-shadow: 0 0 5px 0.05px #e91c97"></div>
+                                <p style="font-size: 20px; line-height: 1.1; color:#000; margin-bottom: 5px">AI is matching employee...</p>
+                                <p style="font-size: 12px; line-height: 1.1; color:#595959; margin-bottom: 5px">This may take up to 10 sec.</p>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            
+            <div class="dashboard-box-2">
+                {% for project in projects %}
+                <div class="employee-card">  
+                    <h3 style="margin: 0;font-size: 24px;">{{ project.title }}</h3>
+                    <!-- <p>Description: {{ project.description | safe }}</p> -->
+                    <p>Best Employee Match: {{ project.best_employee_name | safe }}</p>
+                    <!-- Trigger Button -->
+                    <div style="display: flex; flex-direction: row;">
+                        <button class="button-add-employee" type="button" onclick="showDetails('projectDetails{{ loop.index }}')">Read More</button>
+                        <!-- <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
+                            <button class="button-delete-employee" type="submit">Delete project</button>
+                        </form> -->
+                        <form action="{{ url_for('delete_project', project_id=project.id) }}" method="post">
+                            <button class="button-delete-employee" type="button" 
+                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                              Delete
+                            </button>
+                         </form>
+                         
+
+                        
+                    </div>
+                    
+                    
+                    
+
+                    <!-- Hidden Details Container -->
+                    <div id="projectDetails{{ loop.index }}" style="display: none;">
+                        <!-- <h3>{{ project.title }}</h3>
+                        <p>Project description: {{ project.description }}</p>
+                        <p>The best employee for this job is: {{ project.best_employee_name }}</p>
+                        <p>{{ project.best_employee_name }} is the best employee for this job because: {{ project.best_employee_reason }}</p> -->
+
+
+
+                        <h3 style="color: #000; border-bottom: 2px solid #ddd; padding-bottom: 10px;">{{ project.title }}</h3>
+                        <div style="padding: 10px 0;">
+                            <h4 style="margin :0px; color: #000; ">Project Description</h4>
+                            <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ project.description }}</p>
+                            <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                        </div>
+                        <div style="padding: 10px 0;">
+                            <h4 style="margin :0px; color: #000;">Best Employee Match</h4>
+                            <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ project.best_employee_name }}</p>
+                            <hr style="border: 0; height: 1px; background-color: #eee; margin: 0;">
+                        </div>
+                        <div style="padding: 10px 0;">
+                            <h4 style="margin :0px; color: #000;">Why we matched this employee here</h4>
+                            <p style="margin-top: 0; color : #4b4b4b; margin-top: 5px">{{ project.best_employee_reason }}</p>
+                        </div>
+                       
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            
+            
+        </div>
+    </div>
+    <script>
+//         function showDetails(detailId) {
+//     var detailsHtml = document.getElementById(detailId).innerHTML;
+//     var popupContent = `<div class="popup-content">${detailsHtml}<button class="button-add" onclick="closePopup()">Close</button></div>`;
+//     document.getElementById('popup-container').innerHTML = popupContent;
+//     document.getElementById('popup-container').style.display = 'flex';
+// }
+
+// function closePopup() {
+//     document.getElementById('popup-container').style.display = 'none';
+// }
+function showDetails(detailId) {
+    var detailsHtml = document.getElementById(detailId).innerHTML;
+    var popupContent = `<div class="popup-content">${detailsHtml}<button class="button-add" onclick="closePopup()">Close</button></div>`;
+    document.getElementById('popup-container').innerHTML = popupContent;
+    document.getElementById('popup-container').style.display = 'flex';
+}
+
+function closePopup() {
+    document.getElementById('popup-container').style.display = 'none';
+}
+    </script>
+    
+</body>
+</html>
+
